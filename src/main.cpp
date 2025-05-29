@@ -5,34 +5,32 @@
 
 #include "WS2812.pio.h" // This header file gets produced during compilation from the WS2812.pio file
 #include "drivers/logging/logging.h"
-
-#define LED_PIN 14
+#include "drivers/LEDs/LEDs.h"
+#include "drivers/Board/Board.h"
 
 int main()
 {
     stdio_init_all();
 
-    // Initialise PIO0 to control the LED chain
-    uint pio_program_offset = pio_add_program(pio0, &ws2812_program);
-    ws2812_program_init(pio0, 0, pio_program_offset, LED_PIN, 800000, false);
-    uint32_t led_data [1];
+    // initialize the LEDController
+    LEDController ledController; // Initialize with Default Number of LEDs (12), to change this,
+    // pass the desired number to the constructor in LEDController ledController(num_leds) format.
+    // For example, to initialize with 6 LEDs, use LEDController ledController(6);
+    ledController.initLEDs();
 
     for (;;) {
         // Test the log system
         log(LogLevel::INFORMATION, "Hello world");
 
-        // Turn on the first LED to be a certain colour
-        uint8_t red = 0;
-        uint8_t green = 0;
-        uint8_t blue = 255;
-        led_data[0] = (red << 24) | (green << 16) | (blue << 8);
-        pio_sm_put_blocking(pio0, 0, led_data[0]);
-        sleep_ms(500);
-
-        // Set the first LED off 
-        led_data[0] = 0;
-        pio_sm_put_blocking(pio0, 0, led_data[0]);
-        sleep_ms(500);
+        ledController.getLED(0).setColor(255, 0, 0); // Set first LED to red
+        ledController.getLED(1).setColor(0, 255, 0); // Set second LED to green
+        ledController.getLED(2).setColor(0, 0, 255); // Set third LED to blue
+        // ledController.setLEDGroup(vectorRange(3, 10), 255, 255, 0); // Set LEDs 3 to 11 to yellow
+        ledController.setLEDGroup({5, 9, 11}, 255, 0, 255); // Set LEDs 5, 9, and 11 to magenta
+        ledController.updateLEDs(); // Update the LEDs to reflect the changes
+        sleep_ms(1000); // Wait for 1 second before the next update
+        ledController.resetLEDs(); // Reset all LEDs to off state
+        ledController.updateLEDs(); // Update the LEDs to reflect the reset
     }
 
     return 0;
