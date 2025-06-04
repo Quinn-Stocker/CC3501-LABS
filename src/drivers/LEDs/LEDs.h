@@ -12,6 +12,7 @@ class LED {
         // LED number and its RGB color values
         int led_num;
         uint8_t red, green, blue;
+        std::vector<uint8_t> applied_color;
     public:
         // Constructor to initialize LED [led_num]
         LED(int led_num);
@@ -25,6 +26,18 @@ class LED {
         // and third byte is blue.
         // This is used to send the color data to the LED strip.
         uint32_t formatColor() const;
+
+        // RGBColor() returns the RGB color as a vector
+        std::vector<uint8_t> RGBColor() const;
+
+        // applyColor() applies the current color to the LED
+        void applyColor();
+
+        // getAppliedColor() returns the currently applied color
+        std::vector<uint8_t> getAppliedColor() const;
+
+        // LEDNum() returns the LED number
+        int LEDNum() const;
 };
 
 // LEDController class to manage a dynamic number of LEDs
@@ -54,4 +67,21 @@ class LEDController {
 
         // updateLEDs() updates the state of all LEDs
         void updateLEDs();
+
+        // HSVtoRGB(int h, int s, int v) converts HSV values to RGB
+        std::vector<uint8_t> HSVtoRGB(int h, int s, int v) const;
+
+        // - LED status functions -
+
+        // count() returns the number of LEDs managed by this controller
+        int count() const;
+
+        // getStatus(const std::vector<int>& indices) returns the status of the specified LEDs
+        std::vector<std::string> getStatus(const std::vector<int>& indices) const;
+
+        // getAction(const std::vector<int>& indices) returns the action for the specified LEDs
+        std::vector<std::string> getAction(const std::vector<int>& indices) const;
+
+        // getSummary() returns a summary of the LEDs
+        std::string getSummary() const;
 };

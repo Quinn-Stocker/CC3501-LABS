@@ -25,8 +25,10 @@ int main()
         ledController.getLED(0).setColor(255, 0, 0); // Set first LED to red
         ledController.getLED(1).setColor(0, 255, 0); // Set second LED to green
         ledController.getLED(2).setColor(0, 0, 255); // Set third LED to blue
-        // ledController.setLEDGroup(vectorRange(3, 10), 255, 255, 0); // Set LEDs 3 to 11 to yellow
         ledController.setLEDGroup({5, 9, 11}, 255, 0, 255); // Set LEDs 5, 9, and 11 to magenta
+        ledController.updateLEDs(); // Update the LEDs to reflect the changes
+        sleep_ms(1000); // Wait for 1 second before the next update
+        ledController.getLED(7).setColor(255, 255, 0); // Set the 8th LED to yellow
         ledController.updateLEDs(); // Update the LEDs to reflect the changes
         sleep_ms(1000); // Wait for 1 second before the next update
         ledController.resetLEDs(); // Reset all LEDs to off state
