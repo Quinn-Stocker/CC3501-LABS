@@ -15,7 +15,7 @@ class accelDriver {
     public:
         void accelInit();
 
-        void readAccelerometer(int16_t &x, int16_t &y, int16_t &z);
+        std::vector<float> readAccelerometer();
 
         float convertToGs(int16_t rawValue);
 };

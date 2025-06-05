@@ -78,7 +78,7 @@ bool accelDriver::readRegister(uint8_t reg, uint8_t *data, size_t length = 1) {
     }
 
     // Now read the data
-    int bytes_read = i2c_read_blocking(I2C_INSTANCE, I2C_ADDRESS, data, length, false);
+    int bytes_read = i2c_read_blocking(I2C_INSTANCE, I2C_ADDRESS, data, length, true);
     if (bytes_read != length) {
         log(LogLevel::ERROR, "lis3dh::read_registers: Failed to read data.");
         return false;
@@ -87,24 +87,33 @@ bool accelDriver::readRegister(uint8_t reg, uint8_t *data, size_t length = 1) {
     return true; // Return true if the read operation was successful
 }
 
-void accelDriver::readAccelerometer(int16_t &x, int16_t &y, int16_t &z) {
+std::vector<float> accelDriver::readAccelerometer() {
     uint8_t data[6]; // Buffer to hold the accelerometer data
 
     // Read 6 bytes of data from the LIS3DH accelerometer
-    if (!readRegister(READ_X_L, data, 6)) {
+    if (!readRegister(READ_X_L | 0x80, data, 6)) {
         log(LogLevel::ERROR, "Failed to read accelerometer data");
-        return; // Exit if the read operation fails
     }
 
     // Convert the raw data to 16-bit integers
-    x = (int16_t)((data[1] << 8) | data[0]);
-    y = (int16_t)((data[3] << 8) | data[2]);
-    z = (int16_t)((data[5] << 8) | data[4]);
+    int16_t x = (int16_t)(data[0] | (data[1] << 8)) >> 4; // Combine low and high bytes for X-axis
+    int16_t y = (int16_t)(data[2] | (data[3] << 8)) >> 4; // Combine low and high bytes for Y-axis
+    int16_t z = (int16_t)(data[4] | (data[5] << 8)) >> 4; // Combine low and high bytes for Z-axis
+
+    float xGs = convertToGs(x); // Convert raw X-axis data to Gs
+    float yGs = convertToGs(y); // Convert raw Y-axis data to Gs
+    float zGs = convertToGs(z); // Convert raw Z-axis data to Gs
+
+    float tempX = float(x);
+    float tempY = float(y);
+    float tempZ = float(z);
+
+    return {xGs, yGs, zGs}; // Return the accelerometer data as a vector of floats
 }
 
 float accelDriver::convertToGs(int16_t rawValue) {
     // Convert the raw accelerometer value to Gs (gravitational units)
-    // 1LSB = 16mGs, therefore gs = rawValue / 16000.0f
+    // 1LSB = 16mGs
     // This conversion assumes the LIS3DH is configured for ±2g full scale
-    return (float)rawValue / 16000.0f;
+    return (float)rawValue * 0.016f;
 }

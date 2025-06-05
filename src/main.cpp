@@ -24,9 +24,6 @@ int main()
 
 
     for (;;) {
-        // Test the log system
-        log(LogLevel::INFORMATION, "Hello world");
-
         // ledController.getLED(0).setColor(255, 0, 0); // Set first LED to red
         // ledController.getLED(1).setColor(0, 255, 0); // Set second LED to green
         // ledController.getLED(2).setColor(0, 0, 255); // Set third LED to blue
@@ -39,12 +36,19 @@ int main()
         // ledController.resetLEDs(); // Reset all LEDs to off state
         // ledController.updateLEDs(); // Update the LEDs to reflect the reset
 
-        int16_t x, y, z;
-        accelerometer.readAccelerometer(x, y, z); // Read accelerometer data
-        float xGs = accelerometer.convertToGs(x); // Convert raw X-axis data to Gs
-        float yGs = accelerometer.convertToGs(y); // Convert raw Y-axis data to Gs
-        float zGs = accelerometer.convertToGs(z); // Convert raw Z-axis data to Gs
-        printf("Accelerometer Data: X = %.2f G, Y = %.2f G, Z = %.2f G\n", xGs, yGs, zGs);
+        std::vector<float> accelData = accelerometer.readAccelerometer();
+        if (accelData.size() < 1) {
+            log(LogLevel::ERROR, "Failed to read accelerometer data");
+            continue; // Skip this iteration if data is not valid
+        }
+
+        // Log the accelerometer data
+        std::string logMessage = "Accelerometer Data: X: " + std::to_string(accelData[0]) +
+                                " G, Y: " + std::to_string(accelData[1]) +
+                                " G, Z: " + std::to_string(accelData[2]) + " G";
+        log(LogLevel::INFORMATION, logMessage.c_str());
+
+        sleep_ms(500); // Wait for 1 second before the next iteration
     }
 
     return 0;
