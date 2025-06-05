@@ -33,6 +33,7 @@ if(CrossCompiling)
         src/main.cpp
         src/drivers/logging/logging.cpp
         src/drivers/LEDs/LEDs.cpp
+        src/drivers/LIS3DH/LIS3DH.cpp
     )
     target_include_directories(labs
         PUBLIC 
